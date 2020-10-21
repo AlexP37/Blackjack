@@ -8,12 +8,8 @@ os.system("clear")
 
 pygame.init()
 pygame.font.init()
-display_width = 750
-display_height = 750
-black = (0,0,0)
-white = (255,255,255)
-red = (255,0,0)
-blue = (0,0,255)
+display_width = 1200
+display_height = 800
 gameDisplay = pygame.display.set_mode((display_width, display_height))
 pygame.display.set_caption('Blackjack')
 clock = pygame.time.Clock()
@@ -68,9 +64,25 @@ dealerhand = Hand()
 end = False
 while end == False:
     clock.tick(60)
-    hitCard(userHand)
+    img = pygame.image.load('background.jpg')
+    gameDisplay.blit(img, (0, 0))
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            end = True
+            pygame.quit()
+            pygame.font.quit()
+            quit()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                end = True
+                pygame.quit()
+                pygame.font.quit()
+                quit()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mx, my = pygame.mouse.get_pos()
+            hitCard(userHand)
 
-
+    pygame.display.update()
 
 for i in userHand.cards:
     print(userHand.cards[userHand.cards.index(i)].name)
