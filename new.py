@@ -175,6 +175,9 @@ while cont == False:
             pygame.quit()
             pygame.font.quit()
             quit()
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_d:
+            black = (255,255,255)
+            white = (10,10,10)
         mx, my = pygame.mouse.get_pos()
         if 245 < mx < 967 and 277 < my < 529:
             gameDisplay.fill(white)
