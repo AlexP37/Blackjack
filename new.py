@@ -9,18 +9,19 @@ os.system("clear")
 pygame.init()
 pygame.font.init()
 
-red = (165,0,0)
-green = (0,165,0)
-blue = (0,0,165)
-white = (255,255,255)
-black = (0,0,0)
-grey_light = (210,210,210)
+red = redOG = (165,0,0)
+green = greenOG = (0,165,0)
+blue = blueOG = (0,0,165)
+backgroundColor = whiteOG = (255,255,255)
+textColor = blackOG = (0,0,0)
+grey_light = grey_lightOG = (210,210,210)
+
 display_width = 1200
 display_height = 800
 gameDisplay = pygame.display.set_mode((display_width, display_height))
 pygame.display.set_caption('Blackjack')
 clock = pygame.time.Clock()
-gameDisplay.fill(white)
+gameDisplay.fill(backgroundColor)
 
 suits = ["h","d","c","s"]
 cardTypes = ["a","2","3","4","5","6","7","8","9","10","j","q","k"]
@@ -28,7 +29,9 @@ valuesForCards = [11,2,3,4,5,6,7,8,9,10,10,10,10]
 deck = hand = testerList = []
 delay = 61
 result = "playing"
-end = cont = bust = stand = dealerBust = mouseDown = onPlayButton = False
+
+end = cont = bust = stand = mouseDown = dealerBust = onPlayButton = False
+
 cancelledStand = cancelledHit = True
 
 class Card:
@@ -40,7 +43,7 @@ class Card:
 
 class Hand:
     def __init__(self, player):
-        self.color = black
+        self.color = textColor
         self.player = player
         self.value = 0
         self.cards = [deck[0], deck[1]]
@@ -85,7 +88,7 @@ class Hand:
             if bust == True or stand == True:
                 self.handText = TextBox(text, 50, coords, self.color)
             else:
-                self.handText = TextBox(text, 50, coords, black)
+                self.handText = TextBox(text, 50, coords, textColor)
         else:
             self.handText = TextBox(text, 50, coords, self.color)
 
@@ -126,7 +129,7 @@ def displayHand(who):
     who.display()
 
 def updateScreen():
-    gameDisplay.fill(white)
+    gameDisplay.fill(backgroundColor)
     
     if stand == True:
         hitBox.color = standBox.color = splitBox.color = grey_light
@@ -149,23 +152,12 @@ def updateScreen():
     hitBox.display()
     standBox.display()
     splitBox.display()
-    
 
 createDeck()
 random.shuffle(deck)
 
-userHand = Hand("user")
-dealerHand = Hand("dealer")
-
-noteBox = TextBox("Bust", 100, (20,400), black)
-# betBox = TextBox("Bet", 100, (20,400), black)
-hitBox = TextBox("Hit", 100, (20,500), black)
-standBox = TextBox("Stand", 100, (20,600), black)
-splitBox = TextBox("Split", 100, (20,700), black)
-
-
-gameDisplay.fill(white)
-textBoxClear("Play", 300, (display_width / 2, display_height / 2), black)
+gameDisplay.fill(backgroundColor)
+textBoxClear("Play", 300, (display_width / 2, display_height / 2), textColor)
 while cont == False:
     clock.tick(60)
     for event in pygame.event.get():
@@ -176,29 +168,42 @@ while cont == False:
             pygame.font.quit()
             quit()
         if event.type == pygame.KEYDOWN and event.key == pygame.K_d:
-            black = (255,255,255)
-            white = (10,10,10)
+            textColor = (255,255,255)
+            backgroundColor = (5,5,5)
+            green = (0,120,0)
+            red = (120,0,0)
+            blue = (0,0,120)
+            grey_light = (100,100,100)
         mx, my = pygame.mouse.get_pos()
         if 245 < mx < 967 and 277 < my < 529:
-            gameDisplay.fill(white)
-            textBoxClear("Play", 320, (display_width / 2, display_height / 2), black)
+            gameDisplay.fill(backgroundColor)
+            textBoxClear("Play", 320, (display_width / 2, display_height / 2), textColor)
             if event.type == pygame.MOUSEBUTTONDOWN or mouseDown == True:
                 onPlayButton = True
                 mouseDown = True
-                gameDisplay.fill(white)
+                gameDisplay.fill(backgroundColor)
                 textBoxClear("Play", 320, (display_width / 2, display_height / 2), green)
             if event.type == pygame.MOUSEBUTTONUP and mouseDown == True:
                 if onPlayButton == True:
                     cont = True
                 mouseDown = False
-                gameDisplay.fill(white)
+                gameDisplay.fill(backgroundColor)
         else:
-            gameDisplay.fill(white)
-            textBoxClear("Play", 300, (display_width / 2, display_height / 2), black)
+            gameDisplay.fill(backgroundColor)
+            textBoxClear("Play", 300, (display_width / 2, display_height / 2), textColor)
         if event.type == pygame.MOUSEBUTTONUP and mouseDown == True:
             onPlayButton = False
             mouseDown = False
     pygame.display.update()
+
+userHand = Hand("user")
+dealerHand = Hand("dealer")
+
+noteBox = TextBox("Bust", 100, (20,400), textColor)
+# betBox = TextBox("Bet", 100, (20,400), textColor)
+hitBox = TextBox("Hit", 100, (20,500), textColor)
+standBox = TextBox("Stand", 100, (20,600), textColor)
+splitBox = TextBox("Split", 100, (20,700), textColor)
 
 updateScreen()
 
@@ -215,8 +220,33 @@ while end == False:
             pygame.font.quit()
             quit()
 
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_d:
+            list1 = [noteBox, hitBox, standBox, splitBox, dealerHand, userHand]
+            if backgroundColor != (5,5,5):
+                textColor = (255,255,255)
+                backgroundColor = (5,5,5)
+                green = (0,120,0)
+                red = (120,0,0)
+                blue = (0,0,120)
+                grey_light = (100,100,100)
+                for i in list1:
+                    if i.color == blackOG:
+                        i.color = textColor
+            else:
+                for i in list1:
+                    if i.color != blackOG:
+                        i.color = blackOG
+                textColor = blackOG
+                backgroundColor = whiteOG
+                green = greenOG
+                red = redOG
+                blue = blueOG
+                grey_light = grey_lightOG
+            updateScreen()
+
+
         if 22 > mx or mx > 179 or 455 > my or my > 542:
-            hitBox.color = black
+            hitBox.color = textColor
             updateScreen()
             cancelledHit = True
             hitBox.size = 100
@@ -224,7 +254,7 @@ while end == False:
             hitBox.size = 102
 
         if 22 > mx or mx > 337 or 555 > my or my > 642:
-            standBox.color = black
+            standBox.color = textColor
             updateScreen()
             cancelledStand = True
             standBox.size = 100
@@ -254,8 +284,8 @@ while end == False:
                 if stand == False:
                     delay = 0
                 stand = True
-            hitBox.color = black
-            standBox.color = black
+            hitBox.color = textColor
+            standBox.color = textColor
             updateScreen()
 
     if bust == True or stand == True:
