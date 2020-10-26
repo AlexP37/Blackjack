@@ -157,6 +157,32 @@ createDeck()
 random.shuffle(deck)
 
 gameDisplay.fill(backgroundColor)
+pygame.draw.rect(gameDisplay, (5,5,5), (600, 0, 600, 800))
+textBoxClear("Light", 100, (300,400), textColor)
+textBoxClear("Dark", 100, (900,400), (255,255,255))
+while cont == False:
+    clock.tick(60)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+            cont = True
+            end = True
+            pygame.quit()
+            pygame.font.quit()
+            quit()
+        mx, my = pygame.mouse.get_pos()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if 600 < mx:
+                textColor = (255,255,255)
+                backgroundColor = (5,5,5)
+                green = (0,120,0)
+                red = (120,0,0)
+                blue = (0,0,120)
+                grey_light = (100,100,100)
+            cont = True
+    pygame.display.update()
+
+cont = False
+gameDisplay.fill(backgroundColor)
 textBoxClear("Play", 300, (display_width / 2, display_height / 2), textColor)
 while cont == False:
     clock.tick(60)
@@ -168,12 +194,20 @@ while cont == False:
             pygame.font.quit()
             quit()
         if event.type == pygame.KEYDOWN and event.key == pygame.K_d:
-            textColor = (255,255,255)
-            backgroundColor = (5,5,5)
-            green = (0,120,0)
-            red = (120,0,0)
-            blue = (0,0,120)
-            grey_light = (100,100,100)
+            if backgroundColor != (5,5,5):
+                textColor = (255,255,255)
+                backgroundColor = (5,5,5)
+                green = (0,120,0)
+                red = (120,0,0)
+                blue = (0,0,120)
+                grey_light = (100,100,100)
+            else:
+                textColor = blackOG
+                backgroundColor = whiteOG
+                green = greenOG
+                red = redOG
+                blue = blueOG
+                grey_light = grey_lightOG
         mx, my = pygame.mouse.get_pos()
         if 245 < mx < 967 and 277 < my < 529:
             gameDisplay.fill(backgroundColor)
