@@ -28,9 +28,9 @@ cardTypes = ["a","2","3","4","5","6","7","8","9","10","j","q","k"]
 valuesForCards = [11,2,3,4,5,6,7,8,9,10,10,10,10]
 deck = hand = testerList = []
 delay = 61
-result = "playing"
+result = "bet"
 
-end = cont = bust = stand = mouseDown = dealerBust = onPlayButton = False
+end = cont = bust = stand = mouseDown = dealerBust = onPlayButton = blackJack = False
 
 cancelledStand = cancelledHit = True
 
@@ -46,22 +46,27 @@ class Hand:
         self.color = textColor
         self.player = player
         self.value = 0
+        self.aceCount = 0
         self.cards = [deck[0], deck[1]]
         deck.remove(deck[0])
         deck.remove(deck[0])
         self.value += self.cards[0].value
         if self.cards[-1].name in ["ha","da","ca","sa"] and (self.value + 11) > 21:
             self.value += 1
+            self.aceCount += 1
         else:
             self.value += self.cards[-1].value
 
     def hit(self):
         self.cards.append(deck[0])
         deck.remove(deck[0])
-        if self.cards[-1].name in ["ha","da","ca","sa"] and (self.value + 11) > 21:
-            self.value += 1
-        else:
-            self.value += self.cards[-1].value
+        if self.cards[-1].name in ["ha","da","ca","sa"]:
+            self.aceCount += 1
+        self.value += self.cards[-1].value
+        if self.value > 21:
+            if self.aceCount > 0:
+                self.aceCount -= 1
+                self.value -= 10
  
     def display(self):
         cardsInDeckNames = ""
@@ -131,16 +136,18 @@ def displayHand(who):
 def updateScreen():
     gameDisplay.fill(backgroundColor)
     
-    if stand == True:
-        hitBox.color = standBox.color = splitBox.color = grey_light
-    if bust == True:
-        hitBox.color = standBox.color = splitBox.color = grey_light
+    # if stand == True:
+    #     hitBox.color = standBox.color = splitBox.color = grey_light
+    # if bust == True:
+    #     hitBox.color = standBox.color = splitBox.color = grey_light
 
     noteBox.text = ""
     if bust == True:
         noteBox.text = "Bust"
     if stand == True:
         noteBox.text = "Stood"
+    if blackJack == True:
+        noteBox.text = "Blackjack"
     if result != "playing":
         noteBox.text = result
         hitBox.color = standBox.color = splitBox.color = grey_light
@@ -234,12 +241,31 @@ userHand = Hand("user")
 dealerHand = Hand("dealer")
 
 noteBox = TextBox("Bust", 100, (20,400), textColor)
-# betBox = TextBox("Bet", 100, (20,400), textColor)
 hitBox = TextBox("Hit", 100, (20,500), textColor)
 standBox = TextBox("Stand", 100, (20,600), textColor)
 splitBox = TextBox("Split", 100, (20,700), textColor)
 
 updateScreen()
+while result == "bet":
+    clock.tick(60)
+    for event in pygame.event.get():
+        mx, my = pygame.mouse.get_pos()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if 20 < mx < 200 and 355 < my < 445:
+                noteBox.color = blue
+                updateScreen()
+            
+        if event.type == pygame.MOUSEBUTTONUP:
+            if 20 < mx < 200 and 355 < my < 445:
+                result = "playing"
+                noteBox.color = textColor
+                hitBox.color = standBox.color = splitBox.color = textColor
+                updateScreen()
+
+    pygame.display.update()
+    print(pygame.mouse.get_pos())
+
+result = "playing"
 
 while end == False:
     clock.tick(60)
@@ -321,6 +347,13 @@ while end == False:
             hitBox.color = textColor
             standBox.color = textColor
             updateScreen()
+
+    if userHand.value == 21:
+        if blackJack == False:
+            delay = -30
+        stand = True
+        blackJack = True
+        updateScreen()
 
     if bust == True or stand == True:
         if dealerHand.value > 21:
