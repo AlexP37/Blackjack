@@ -133,6 +133,13 @@ def textBoxClear(text, size, position, color):
     textRect.center = position
     gameDisplay.blit(text, textRect)
 
+def textBoxClearLight(text, size, position, color):
+    font = pygame.font.Font('LemonLight.otf', size)
+    text = font.render(text, True, color)
+    textRect = text.get_rect()
+    textRect.center = position
+    gameDisplay.blit(text, textRect)
+
 def textBoxClearLeft(text, size, position, color):
     font = pygame.font.Font('LemonMilk.otf', size)
     text = font.render(text, True, color)
@@ -192,10 +199,18 @@ def updateScreen():
         hitBox.color = standBox.color = splitBox.color = grey_light
 
     if result in ["win", "loss", "draw"]:
-        if 411 < mx < 1126 and 466 < my < 629:
-            textBoxClear("Replay", 220, (767, 550), textColor)
+        if money == 0 and result == "loss":
+            if 395 < mx < 1145 and 466 < my < 629:
+                textBoxClearLight("OUT OF MONEY", 20, (767, 450), textColor)
+                textBoxClear("RESTART", 190, (767, 550), textColor)
+            else:
+                textBoxClearLight("OUT OF MONEY", 20, (767, 450), textColor)
+                textBoxClear("RESTART", 180, (767, 550), textColor)
         else:
-            textBoxClear("Replay", 200, (767, 550), textColor)
+            if 511 < mx < 1026 and 466 < my < 629:
+                textBoxClear("NEXT", 220, (767, 550), textColor)
+            else:
+                textBoxClear("NEXT", 200, (767, 550), textColor)
     
     noteBox.display()
     textBoxClearRight("BANK: $" + str(money), 50, (1180,40), textColor)
@@ -425,7 +440,7 @@ while quiting == False:
 
             if event.type == pygame.MOUSEBUTTONUP:
                 if 22 < mx < 179 and 455 < my < 542 and cancelledHit == False:
-                    if userHand.value < 21:
+                    if userHand.value < 21 and stand == False and fiveUnder == False:
                         hitCard(userHand)
                     if userHand.value > 21:
                         if bust == False:
@@ -440,7 +455,9 @@ while quiting == False:
                 updateScreen()
 
             if result != "playing" and 411 < mx < 1126 and 466 < my < 629 and event.type == pygame.MOUSEBUTTONUP:
-                    end = True
+                if money == 0 and result == "loss":
+                    money = 100
+                end = True
 
         if userHand.value == 21:
             if blackJack == False:
