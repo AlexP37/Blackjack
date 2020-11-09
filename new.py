@@ -318,7 +318,7 @@ while quiting == False:
     splitBox = TextBox("Split", 100, (20,700), textColor)
 
     updateScreen()
-    textBoxClearLeft("Type bet", 100, (20,400), blue)
+    textBoxClearLeft("Type Bet", 100, (20,400), blue)
     betValueColor = green
     while result != "playing":
         clock.tick(60)
@@ -344,7 +344,7 @@ while quiting == False:
                     if str(betValue) != "":
                         textBoxClearLeft("$" + str(betValue), 100, (20,400), betValueColor)
                     else:
-                        textBoxClearLeft("Type bet", 100, (20,400), blue)
+                        textBoxClearLeft("Type Bet", 100, (20,400), blue)
                 if event.key == pygame.K_RETURN:
                     if betValue != "":
                         if int(betValue) != 0 and int(betValue) <= money:
@@ -357,7 +357,7 @@ while quiting == False:
                             if str(betValue) != "":
                                 textBoxClearLeft("$" + str(betValue), 100, (20,400), betValueColor)
                             else:
-                                textBoxClearLeft("Type bet", 100, (20,400), blue)
+                                textBoxClearLeft("Type Bet", 100, (20,400), blue)
 
         if betValue.isnumeric():
             if int(betValue) > money:
