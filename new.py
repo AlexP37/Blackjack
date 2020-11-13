@@ -54,9 +54,9 @@ class Hand:
         deck.remove(deck[0])
         self.fiveUnder = False
         self.value += self.cards[0].value
-        if self.cards[0].name in ["ha","da","ca","sa"]:
+        if self.cards[0].name in ["ah","ad","ac","as"]:
             self.aceCount += 1
-        if self.cards[-1].name in ["ha","da","ca","sa"]:
+        if self.cards[-1].name in ["ah","ad","ac","as"]:
             if (self.value + 11) > 21:
                 self.value += 1
             else:
@@ -68,7 +68,7 @@ class Hand:
     def hit(self):
         self.cards.append(deck[0])
         deck.remove(deck[0])
-        if self.cards[-1].name in ["ha","da","ca","sa"]:
+        if self.cards[-1].name in ["ah","ad","ac","as"]:
             self.aceCount += 1
         self.value += self.cards[-1].value
         if self.value > 21:
@@ -172,7 +172,7 @@ def createDeck():
     for s in suits:
         for t in cardTypes:
             v = valuesForCards[cardTypes.index(t)]
-            singleCard = Card(s, (s + t), v, t)
+            singleCard = Card(s, (t + s), v, t)
             deck.append(singleCard)
 
 def hitCard(who):
@@ -188,15 +188,19 @@ def updateScreen():
         hitBox.color = standBox.color = splitBox.color = grey_light
 
     noteBox.text = ""
+    if bust == True:
+        noteBox.text = "Bust"
     if stand == True:
         noteBox.text = "Stood"
     if blackJack == True:
         noteBox.text = "Blackjack"
     if userHand.fiveUnder == True:
         noteBox.text = "5 Under 21"
-    if result != "playing" and result != "bet":
-        noteBox.text = result
+    if result != "playing":
         hitBox.color = standBox.color = splitBox.color = grey_light
+        if result != "bet":
+            noteBox.text = result
+        
 
     if result in ["win", "loss", "draw"]:
         if money == 0 and result == "loss":
