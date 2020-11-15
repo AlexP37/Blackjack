@@ -32,9 +32,9 @@ result = "bet"
 betValue = ""
 money = 100
 
-end = cont = bust = stand = fiveUnder = mouseDown = dealerFiveUnder = dealerBust = onPlayButton = blackJack = quiting = False
+end = cont = mouseDown = onPlayButton = quiting = dealerTurn = hand2Turn = False
 
-cancelledStand = cancelledHit = True
+cancelledStand = cancelledHit = cancelledSplit = True
 
 class Card:
     def __init__(self, suit, name, value, cardType):
@@ -49,11 +49,17 @@ class Hand:
         self.player = player
         self.value = 0
         self.aceCount = 0
-        self.cards = [deck[0], deck[1]]
-        deck.remove(deck[0])
-        deck.remove(deck[0])
+        self.split = False
+        self.bust = False
+        self.stand = False
         self.fiveUnder = False
+        self.blackJack = False
+
+        self.cards = [deck[0], deck[1]]
         self.value += self.cards[0].value
+        deck.remove(deck[0])
+        deck.remove(deck[0])
+
         if self.cards[0].name in ["ah","ad","ac","as"]:
             self.aceCount += 1
         if self.cards[-1].name in ["ah","ad","ac","as"]:
@@ -89,9 +95,9 @@ class Hand:
             if self.player == "dealer":
                 if pastFirstIteration == False:
                     coords = (20,100)
-                if pastFirstIteration == False and bust == False and stand == False:
-                    cardsInDeckNames += "?? "
-                    text = "??: " + cardsInDeckNames
+                if pastFirstIteration == False and ((userHand.split == False and userHand.bust == False and userHand.stand == False) or (userHand.split == True and userHand2.bust == False and userHand2.stand == False)):
+                        cardsInDeckNames += "?? "
+                        text = "??: " + cardsInDeckNames
                 else:
                     cardsInDeckNames += i.name + " "
                     if pastFirstIteration == False:
@@ -103,11 +109,13 @@ class Hand:
                 text = str(self.value) + ": " + cardsInDeckNames
             pastFirstIteration = True
         if self.player == "dealer":
-            if bust == True or stand == True:
+            if userHand.bust == True or userHand.stand == True:
                 self.handText = TextBox(text, 75, coords, self.color)
             else:
                 self.handText = TextBox(text, 75, coords, textColor)
         else:
+            if self.player == "user2":
+                coords = (20,315)
             self.handText = TextBox(text, 75, coords, self.color)
 
 class TextBox:
@@ -169,6 +177,17 @@ def textBoxClearRightLight(text, size, position, color):
     gameDisplay.blit(text, textRect)
 
 def createDeck():
+    v = 3
+    s = "d"
+    t = "3"
+    singleCard = Card(s, (t + s), v, t)
+    deck.append(singleCard)
+
+    v = 3
+    s = "c"
+    t = "3"
+    singleCard = Card(s, (t + s), v, t)
+    deck.append(singleCard)
     for s in suits:
         for t in cardTypes:
             v = valuesForCards[cardTypes.index(t)]
@@ -183,24 +202,40 @@ def displayHand(who):
 
 def updateScreen():
     gameDisplay.fill(backgroundColor)
+    noteBox.text = ""
+
+    if hand2Turn == True:
+        userHand2 == currentPlayerHand
+    else:
+        userHand == currentPlayerHand
     
-    if stand == True or bust == True or blackJack == True or fiveUnder:
+    if currentPlayerHand.stand == True or currentPlayerHand.bust == True or currentPlayerHand.blackJack == True or currentPlayerHand.fiveUnder:
         hitBox.color = standBox.color = splitBox.color = grey_light
 
-    noteBox.text = ""
-    if bust == True:
-        noteBox.text = "Bust"
-    if stand == True:
+    if currentPlayerHand.bust == True:
+        noteBox.text = "bust"
+    if currentPlayerHand.stand == True:
         noteBox.text = "Stood"
-    if blackJack == True:
+    if currentPlayerHand.blackJack == True:
         noteBox.text = "Blackjack"
-    if userHand.fiveUnder == True:
+    if currentPlayerHand.fiveUnder == True:
         noteBox.text = "5 Under 21"
+    
+    if betValue == "":
+        if len(userHand.cards) != 2 or userHand.cards[0].cardType != userHand.cards[1].cardType:
+            splitBox.color = grey_light
+    else:
+        if len(userHand.cards) != 2 or userHand.cards[0].cardType != userHand.cards[1].cardType or (money - int(betValue)) < 0:
+            splitBox.color = grey_light
+
     if result != "playing":
         hitBox.color = standBox.color = splitBox.color = grey_light
         if result != "bet":
             noteBox.text = result
-        
+    
+    if userHand.split == True:
+        if hand2Turn == True and userHand2.bust == False and userHand2.stand == False:
+            noteBox.text = ""
 
     if result in ["win", "loss", "draw"]:
         if money == 0 and result == "loss":
@@ -223,14 +258,18 @@ def updateScreen():
     textBoxClearLeftLight("Dealer", 30, (20,45), dealerHand.color)
     textBoxClearLeftLight("Player", 30, (20,190), userHand.color)
 
+    if result != "bet" and int(betValue) > 0 and userHand.split == True:
+        textBoxClearRightLight("BET 2: $" + betValue, 30, (1180,115), userHand2.color)
+
     if result == "bet":
         TextBox("??: ?? ??", 75, (20,245), textColor)
         TextBox("??: ?? ??", 75, (20,100), textColor)
     else:
         displayHand(userHand)
         displayHand(dealerHand)
+        if userHand.split == True:
+            displayHand(userHand2)
 
-    # betBox.display()
     hitBox.display()
     standBox.display()
     splitBox.display()
@@ -315,14 +354,15 @@ while cont == False:
 while quiting == False:
     userHand = Hand("user")
     dealerHand = Hand("dealer")
+    currentPlayerHand = userHand
 
-    noteBox = TextBox("", 100, (20,400), textColor)
-    hitBox = TextBox("Hit", 100, (20,500), textColor)
-    standBox = TextBox("Stand", 100, (20,600), textColor)
-    splitBox = TextBox("Split", 100, (20,700), textColor)
+    noteBox = TextBox("", 100, (20,430), textColor)
+    hitBox = TextBox("Hit", 100, (20,530), textColor)
+    standBox = TextBox("Stand", 100, (20,630), textColor)
+    splitBox = TextBox("Split", 100, (20,730), textColor)
 
     updateScreen()
-    textBoxClearLeft("Type Bet", 100, (20,400), blue)
+    textBoxClearLeft("Type Bet", 100, (20,430), blue)
     betValueColor = green
     while result != "playing":
         clock.tick(60)
@@ -341,14 +381,14 @@ while quiting == False:
                     if chr(event.key) != "0" or str(betValue) != "" :
                         betValue += (chr(event.key))
                         updateScreen()
-                        textBoxClearLeft("$" + str(betValue), 100, (20,400), betValueColor)
+                        textBoxClearLeft("$" + str(betValue), 100, (20,430), betValueColor)
                 if event.key == pygame.K_BACKSPACE:
                     betValue = betValue[:-1]
                     updateScreen()
                     if str(betValue) != "":
-                        textBoxClearLeft("$" + str(betValue), 100, (20,400), betValueColor)
+                        textBoxClearLeft("$" + str(betValue), 100, (20,430), betValueColor)
                     else:
-                        textBoxClearLeft("Type Bet", 100, (20,400), blue)
+                        textBoxClearLeft("Type Bet", 100, (20,430), blue)
                 if event.key == pygame.K_RETURN:
                     if betValue != "":
                         if int(betValue) != 0 and int(betValue) <= money:
@@ -359,19 +399,18 @@ while quiting == False:
                         else:
                             updateScreen()
                             if str(betValue) != "":
-                                textBoxClearLeft("$" + str(betValue), 100, (20,400), betValueColor)
+                                textBoxClearLeft("$" + str(betValue), 100, (20,430), betValueColor)
                             else:
-                                textBoxClearLeft("Type Bet", 100, (20,400), blue)
+                                textBoxClearLeft("Type Bet", 100, (20,430), blue)
 
         if betValue.isnumeric():
             if int(betValue) > money:
                 if betValueColor == green:
                     betValueColor = red
                     updateScreen()
-                    textBoxClearLeft("$" + str(betValue), 100, (20,400), betValueColor)
+                    textBoxClearLeft("$" + str(betValue), 100, (20,430), betValueColor)
 
         pygame.display.update()
-        # print(pygame.mouse.get_pos())
 
     result = "playing"
     updateScreen()
@@ -379,6 +418,10 @@ while quiting == False:
     while end == False:
         clock.tick(60)
         delay += 1
+
+        currentPlayerHand = userHand
+        if hand2Turn == True:
+            currentPlayerHand = userHand2
 
         for event in pygame.event.get():
             mx, my = pygame.mouse.get_pos()
@@ -415,45 +458,54 @@ while quiting == False:
                 updateScreen()
 
 
-            if 22 > mx or mx > 179 or 455 > my or my > 542:
+            if 22 > mx or mx > 179 or 485 > my or my > 572:
                 hitBox.color = textColor
                 updateScreen()
                 cancelledHit = True
-            #     hitBox.size = 100
-            # else:
-            #     hitBox.size = 102
 
-            if 22 > mx or mx > 337 or 555 > my or my > 642:
+            if 22 > mx or mx > 337 or 585 > my or my > 672:
                 standBox.color = textColor
                 updateScreen()
                 cancelledStand = True
-            #     standBox.size = 100
-            # else:
-            #     standBox.size = 102
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if 22 < mx < 179 and 455 < my < 542:
+                if 22 < mx < 179 and 485 < my < 572:
                     hitBox.color = red
                     cancelledHit = False
-                elif 22 < mx < 337 and 555 < my < 642:
+                elif 22 < mx < 337 and 585 < my < 672:
                     standBox.color = green
                     cancelledStand = False
-                elif 22 < mx < 278 and 655 < my < 742:
-                    print("lmao")
+                elif 22 < mx < 278 and 685 < my < 772 and len(currentPlayerHand.cards) == 2 and currentPlayerHand.split == False and currentPlayerHand.cards[0].cardType == currentPlayerHand.cards[1].cardType and (money - int(betValue)) >= 0:
+                    splitBox.color = blue
+                    cancelledSplit = False
                 updateScreen()
 
             if event.type == pygame.MOUSEBUTTONUP:
-                if 22 < mx < 179 and 455 < my < 542 and cancelledHit == False:
-                    if userHand.value < 21 and stand == False and fiveUnder == False:
-                        hitCard(userHand)
-                    if userHand.value > 21:
-                        if bust == False:
+                if 22 < mx < 179 and 485 < my < 572 and cancelledHit == False:
+                    if currentPlayerHand.value < 21 and currentPlayerHand.stand == False and currentPlayerHand.fiveUnder == False:
+                        hitCard(currentPlayerHand)
+                    if currentPlayerHand.value > 21:
+                        if currentPlayerHand.bust == False:
                             delay = 0
-                        bust = True
-                elif 22 < mx < 337 and 555 < my < 642 and cancelledStand == False:
-                    if stand == False:
+                        currentPlayerHand.bust = True
+                elif 22 < mx < 337 and 585 < my < 672 and cancelledStand == False:
+                    if currentPlayerHand.stand == False:
                         delay = 0
-                    stand = True
+                    currentPlayerHand.stand = True
+                elif 22 < mx < 278 and 685 < my < 772:
+                    if len(userHand.cards) == 2 and userHand.cards[0].cardType == userHand.cards[1].cardType and (money - int(betValue)) >= 0 and hand2Turn == False:
+                        userHand.split = True
+                        money -= int(betValue)
+                        userHand2 = Hand("user2")
+                        userHand2.cards = [userHand.cards[1]]
+                        userHand.cards.remove(userHand.cards[1])
+                        userHand.value = userHand.cards[0].value
+                        userHand2.value = userHand2.cards[0].value
+                        if userHand2.cards[0].cardType == "a":
+                            userHand2.aceCount -= 1
+                            userHand.aceCount -= 1
+                        userHand2.color = grey_light
+
                 hitBox.color = textColor
                 standBox.color = textColor
                 updateScreen()
@@ -463,65 +515,98 @@ while quiting == False:
                     money = 100
                 end = True
 
-        if userHand.value == 21:
-            if blackJack == False:
+        if currentPlayerHand.value == 21:
+            if currentPlayerHand.blackJack == False:
                 delay = -30
-            stand = True
-            blackJack = True
+            currentPlayerHand.stand = True
+            currentPlayerHand.blackJack = True
             updateScreen()
         
-        if userHand.fiveUnder == True:
-            if stand == False:
+        if currentPlayerHand.fiveUnder == True:
+            if currentPlayerHand.stand == False:
                 delay = -30  
-            stand = True
+            currentPlayerHand.stand = True
             if delay == -30:
                 updateScreen()
-                
 
-        print(str(stand) + "THIS IS STAND!!!!!")
+        if userHand.split == False:
+            if userHand.bust == True or userHand.stand == True:
+                dealerTurn = True
+        else:
+            if (userHand2.bust == True or userHand2.stand == True):
+                dealerTurn = True
+            if (userHand.bust == True or userHand.stand == True) and delay >= 30 and hand2Turn == False:
+                userHand.color = grey_light
+                userHand2.color = textColor
+                hand2Turn = True
+                hitBox.color = textColor
+                standBox.color = textColor
+                currentPlayerHand = userHand2
+                updateScreen()
+                delay = 61
 
-        if bust == True or stand == True:
+        if dealerTurn == True:
             if dealerHand.value > 21:
-                dealerBust = True
+                dealerHand.bust = True
             if delay > 60:
                 if dealerHand.value < 17:
                     delay = 0
                     hitCard(dealerHand)
                     if dealerHand.value > 21:
-                        dealerBust = True
+                        dealerHand.bust = True
                 if dealerHand.value >= 17:
-                    if (dealerBust == True and bust == True) or (dealerHand.value == userHand.value and userHand.fiveUnder == dealerHand.fiveUnder):
+                    if (dealerHand.bust == True and userHand.bust == True) or (dealerHand.value == userHand.value and userHand.fiveUnder == dealerHand.fiveUnder):
                         dealerHand.color = blue
                         userHand.color = blue
                         result = "draw"
-                    elif (dealerBust == False and bust == True) or (dealerHand.value > userHand.value and dealerBust == False and userHand.fiveUnder == False) or (dealerHand.fiveUnder == True and userHand.fiveUnder == False):
+                    elif (dealerHand.bust == False and userHand.bust == True) or (dealerHand.value > userHand.value and dealerHand.bust == False and userHand.fiveUnder == False) or (dealerHand.fiveUnder == True and userHand.fiveUnder == False):
                         dealerHand.color = green
                         userHand.color = red
                         result = "loss"
-                    elif (dealerBust == True and bust == False) or (dealerHand.value < userHand.value and bust == False) or (dealerHand.fiveUnder == False and userHand.fiveUnder == True):
+                    elif (dealerHand.bust == True and userHand.bust == False) or (dealerHand.value < userHand.value and userHand.bust == False) or (dealerHand.fiveUnder == False and userHand.fiveUnder == True):
                         userHand.color = green
                         dealerHand.color = red
                         result = "win"
+                    
+                    if userHand.split == True:
+                        if (dealerHand.bust == True and userHand2.bust == True) or (dealerHand.value == userHand2.value and userHand2.fiveUnder == dealerHand.fiveUnder):
+                            userHand2.color = blue
+                            result2 = "draw"
+                        elif (dealerHand.bust == False and userHand2.bust == True) or (dealerHand.value > userHand2.value and dealerHand.bust == False and userHand2.fiveUnder == False) or (dealerHand.fiveUnder == True and userHand2.fiveUnder == False):
+                            userHand2.color = red
+                            result2 = "loss"
+                        elif (dealerHand.bust == True and userHand2.bust == False) or (dealerHand.value < userHand2.value and userHand2.bust == False) or (dealerHand.fiveUnder == False and userHand2.fiveUnder == True):
+                            userHand2.color = green
+                            result2 = "win"
+                        
+                        if result != result2:
+                            dealerHand.color = blue
+                            print("WE ARE HERE")
+                            print(str(dealerHand.color) + "!!!!111111")
+                print(str(dealerHand.color) + "????222222")
                 updateScreen()
 
         pygame.display.update()
-        # print(pygame.mouse.get_pos())
 
     if result == "win":
         money += (int(betValue) * 2)
     if result == "draw":
         money += (int(betValue))
+    if userHand.split == True:
+        if result2 == "win":
+            money += (int(betValue) * 2)
+        if result2 == "draw":
+            money += (int(betValue))
     betValue = ""
     result = "bet"
     deck = []
     createDeck()
     random.shuffle(deck)
     delay = 61
-    end = cont = bust = stand = mouseDown = userHand.fiveUnder = dealerBust = onPlayButton = blackJack = dealerHand.fiveUnder = False
-    cancelledStand = cancelledHit = True
+    end = cont = userHand.bust = userHand.stand = mouseDown = hand2Turn = userHand.fiveUnder = dealerHand.bust = onPlayButton = userHand.blackJack = dealerHand.fiveUnder = userHand.split = dealerTurn = False
+    cancelledStand = cancelledHit = cancelledSplit = True
 
-for i in userHand.cards:
-    print(i.name)
+
 # Game Over
 print("Awaiting End")
 pygame.quit()
