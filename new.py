@@ -15,6 +15,7 @@ blue = blueOG = (0,0,165)
 backgroundColor = whiteOG = (255,255,255)
 textColor = blackOG = (0,0,0)
 grey_light = grey_lightOG = (210,210,210)
+darkLightImg = pygame.image.load('darkLightButton.png')
 
 display_width = 1200
 display_height = 800
@@ -202,6 +203,9 @@ def displayHand(who):
 
 def updateScreen():
     gameDisplay.fill(backgroundColor)
+
+    gameDisplay.blit(darkLightImg, (1148, 748))
+
     noteBox.text = ""
 
     if hand2Turn == True:
@@ -308,28 +312,13 @@ textBoxClear("Play", 300, (display_width / 2, display_height / 2), textColor)
 while cont == False:
     clock.tick(60)
     for event in pygame.event.get():
+        mx, my = pygame.mouse.get_pos()
         if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
             cont = True
             end = True
             pygame.quit()
             pygame.font.quit()
             quit()
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_d:
-            if backgroundColor != (5,5,5):
-                textColor = (255,255,255)
-                backgroundColor = (5,5,5)
-                green = (0,120,0)
-                red = (120,0,0)
-                blue = (0,0,120)
-                grey_light = (100,100,100)
-            else:
-                textColor = blackOG
-                backgroundColor = whiteOG
-                green = greenOG
-                red = redOG
-                blue = blueOG
-                grey_light = grey_lightOG
-        mx, my = pygame.mouse.get_pos()
         if 245 < mx < 967 and 277 < my < 529:
             gameDisplay.fill(backgroundColor)
             textBoxClear("Play", 320, (display_width / 2, display_height / 2), textColor)
@@ -376,6 +365,51 @@ while quiting == False:
                 pygame.font.quit()
                 quit()
             mx, my = pygame.mouse.get_pos()
+
+            if mx > 1150 and my > 750:
+                if darkLightImg != pygame.image.load('darkLightButton2.png'):
+                    darkLightImg = pygame.image.load('darkLightButton2.png')
+                    updateScreen()
+                    if str(betValue) != "":
+                        textBoxClearLeft("$" + str(betValue), 100, (20,430), betValueColor)
+                    else:
+                        textBoxClearLeft("Type Bet", 100, (20,430), blue)
+                if event.type == pygame.MOUSEBUTTONUP:
+                    list1 = [noteBox, hitBox, standBox, splitBox, dealerHand, userHand]
+                    if backgroundColor != (5,5,5):
+                        textColor = (255,255,255)
+                        backgroundColor = (5,5,5)
+                        green = (0,120,0)
+                        red = (120,0,0)
+                        blue = (0,0,120)
+                        grey_light = (100,100,100)
+                        for i in list1:
+                            if i.color == blackOG:
+                                i.color = textColor
+                    else:
+                        for i in list1:
+                            if i.color != blackOG:
+                                i.color = blackOG
+                        textColor = blackOG
+                        backgroundColor = whiteOG
+                        green = greenOG
+                        red = redOG
+                        blue = blueOG
+                        grey_light = grey_lightOG
+                    updateScreen()
+                    if str(betValue) != "":
+                        textBoxClearLeft("$" + str(betValue), 100, (20,430), betValueColor)
+                    else:
+                        textBoxClearLeft("Type Bet", 100, (20,430), blue)
+            else:
+                if darkLightImg != pygame.image.load('darkLightButton.png'):
+                    darkLightImg = pygame.image.load('darkLightButton.png')
+                    updateScreen()
+                    if str(betValue) != "":
+                        textBoxClearLeft("$" + str(betValue), 100, (20,430), betValueColor)
+                    else:
+                        textBoxClearLeft("Type Bet", 100, (20,430), blue)
+
             if event.type == pygame.KEYDOWN:
                 if chr(event.key).isnumeric():
                     if chr(event.key) != "0" or str(betValue) != "" :
@@ -418,6 +452,7 @@ while quiting == False:
     while end == False:
         clock.tick(60)
         delay += 1
+        print(str(int(clock.get_fps())))
 
         currentPlayerHand = userHand
         if hand2Turn == True:
@@ -433,37 +468,41 @@ while quiting == False:
                 pygame.font.quit()
                 quit()
 
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_d:
-                list1 = [noteBox, hitBox, standBox, splitBox, dealerHand, userHand]
-                if backgroundColor != (5,5,5):
-                    textColor = (255,255,255)
-                    backgroundColor = (5,5,5)
-                    green = (0,120,0)
-                    red = (120,0,0)
-                    blue = (0,0,120)
-                    grey_light = (100,100,100)
-                    for i in list1:
-                        if i.color == blackOG:
-                            i.color = textColor
-                else:
-                    for i in list1:
-                        if i.color != blackOG:
-                            i.color = blackOG
-                    textColor = blackOG
-                    backgroundColor = whiteOG
-                    green = greenOG
-                    red = redOG
-                    blue = blueOG
-                    grey_light = grey_lightOG
-                updateScreen()
+            if mx > 1150 and my > 750:
+                darkLightImg = pygame.image.load('darkLightButton2.png')
+                if event.type == pygame.MOUSEBUTTONUP:
+                    list1 = [noteBox, hitBox, standBox, splitBox, dealerHand, userHand]
+                    if backgroundColor != (5,5,5):
+                        textColor = (255,255,255)
+                        backgroundColor = (5,5,5)
+                        green = (0,120,0)
+                        red = (120,0,0)
+                        blue = (0,0,120)
+                        grey_light = (100,100,100)
+                        for i in list1:
+                            if i.color == blackOG:
+                                i.color = textColor
+                    else:
+                        for i in list1:
+                            if i.color != blackOG:
+                                i.color = blackOG
+                        textColor = blackOG
+                        backgroundColor = whiteOG
+                        green = greenOG
+                        red = redOG
+                        blue = blueOG
+                        grey_light = grey_lightOG
+                    updateScreen()
+            else:
+                darkLightImg = pygame.image.load('darkLightButton.png')
 
 
-            if 22 > mx or mx > 179 or 485 > my or my > 572:
+            if (22 > mx or mx > 179 or 485 > my or my > 572) and cancelledHit == False:
                 hitBox.color = textColor
                 updateScreen()
                 cancelledHit = True
 
-            if 22 > mx or mx > 337 or 585 > my or my > 672:
+            if (22 > mx or mx > 337 or 585 > my or my > 672) and cancelledStand == False:
                 standBox.color = textColor
                 updateScreen()
                 cancelledStand = True
@@ -581,9 +620,6 @@ while quiting == False:
                         
                         if result != result2:
                             dealerHand.color = blue
-                            print("WE ARE HERE")
-                            print(str(dealerHand.color) + "!!!!111111")
-                print(str(dealerHand.color) + "????222222")
                 updateScreen()
 
         pygame.display.update()
