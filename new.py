@@ -45,9 +45,11 @@ class Card:
         self.cardType = cardType
 
 class Hand:
-    def __init__(self, player):
+    def __init__(self, player, side, coords):
         self.color = textColor
         self.player = player
+        self.side = side
+        self.coords = coords
         self.value = 0
         self.aceCount = 0
         self.split = False
@@ -90,12 +92,9 @@ class Hand:
  
     def display(self):
         cardsInDeckNames = ""
-        coords = (20,245)
         pastFirstIteration = False
         for i in self.cards:
             if self.player == "dealer":
-                if pastFirstIteration == False:
-                    coords = (20,100)
                 if pastFirstIteration == False and ((userHand.split == False and userHand.bust == False and userHand.stand == False) or (userHand.split == True and userHand2.bust == False and userHand2.stand == False)):
                         cardsInDeckNames += "?? "
                         text = "??: " + cardsInDeckNames
@@ -111,16 +110,13 @@ class Hand:
             pastFirstIteration = True
         if self.player == "dealer":
             if userHand.bust == True or userHand.stand == True:
-                self.handText = TextBox(text, 75, coords, self.color, "left")
+                self.handText = TextBox(text, 75, self.coords, self.color, self.side)
             else:
-                self.handText = TextBox(text, 75, coords, textColor, "left")
-        elif self.player == "cpu":
-            coords = (1195,255)
-            self.handText = TextBox(text, 45, coords, self.color, "right")
+                self.handText = TextBox(text, 75, self.coords, textColor, self.side)
+        elif self.player != "user":
+            self.handText = TextBox(text, 45, self.coords, self.color, self.side)
         else:
-            if self.player == "user2":
-                coords = (20,315)
-            self.handText = TextBox(text, 75, coords, self.color, "left")
+            self.handText = TextBox(text, 75, self.coords, self.color, self.side)
 
 class TextBox:
     def __init__(self, text, size, position, color, side):
@@ -251,17 +247,17 @@ def updateScreen():
 
     if result in ["win", "loss", "draw"]:
         if money == 0 and result == "loss":
-            if 395 < mx < 1145 and 466 < my < 629:
-                textBoxClearLight("OUT OF MONEY", 20, (767, 450), textColor)
-                textBoxClear("RESTART", 190, (767, 550), textColor)
+            if 395 < mx < 1145 and 499 < my < 662:
+                textBoxClearLight("OUT OF MONEY", 20, (767, 483), textColor)
+                textBoxClear("RESTART", 190, (767, 583), textColor)
             else:
-                textBoxClearLight("OUT OF MONEY", 20, (767, 450), textColor)
-                textBoxClear("RESTART", 180, (767, 550), textColor)
+                textBoxClearLight("OUT OF MONEY", 20, (767, 483), textColor)
+                textBoxClear("RESTART", 180, (767, 583), textColor)
         else:
-            if 511 < mx < 1026 and 466 < my < 629:
-                textBoxClear("NEXT", 220, (767, 550), textColor)
+            if 511 < mx < 1026 and 499 < my < 662:
+                textBoxClear("NEXT", 220, (767, 583), textColor)
             else:
-                textBoxClear("NEXT", 200, (767, 550), textColor)
+                textBoxClear("NEXT", 200, (767, 583), textColor)
     
     noteBox.display()
     textBoxClearRight("BANK: $" + str(money), 50, (1180,40), textColor)
@@ -269,7 +265,9 @@ def updateScreen():
         textBoxClearRightLight("BET: $" + betValue, 30, (1180,80), userHand.color)
     textBoxClearLeftLight("Dealer", 30, (20,45), dealerHand.color)
     if cpuPlayer == True:
-        textBoxClearRightLight("CPU", 30, (1180,210), cpuHand.color)
+        textBoxClearRightLight("CPU 1", 30, (1180,170), cpuHand.color)
+        textBoxClearRightLight("CPU 2", 30, (1180,270), cpuHand2.color)
+        textBoxClearRightLight("CPU 3", 30, (1180,370), cpuHand3.color)
     textBoxClearLeftLight("Player", 30, (20,190), userHand.color)
 
     if result != "bet" and int(betValue) > 0 and userHand.split == True:
@@ -279,12 +277,15 @@ def updateScreen():
         TextBox("??: ?? ??", 75, (20,245), textColor, "left")
         TextBox("??: ?? ??", 75, (20,100), textColor, "left")
         if cpuPlayer == True:
-            TextBox("??: ?? ??", 45, (1195,255), textColor, "right")
+            for i in [0,1,2]:
+                TextBox("??: ?? ?? ", 45, (1195,(100 * i) + 210), textColor, "right")
     else:
         displayHand(userHand)
         displayHand(dealerHand)
         if cpuPlayer == True:
             displayHand(cpuHand)
+            displayHand(cpuHand2)
+            displayHand(cpuHand3)
         if userHand.split == True:
             displayHand(userHand2)
 
@@ -356,9 +357,11 @@ while cont == False:
     pygame.display.update()
 
 while quiting == False:
-    userHand = Hand("user")
-    dealerHand = Hand("dealer")
-    cpuHand = Hand("cpu")
+    userHand = Hand("user", "left", (20,245))
+    dealerHand = Hand("dealer", "left", (20,100))
+    cpuHand = Hand("cpu", "right", (1195,210))
+    cpuHand2 = Hand("cpu2", "right", (1195,310))
+    cpuHand3 = Hand("cpu3", "right", (1195,410))
     currentPlayerHand = userHand
 
     noteBox = TextBox("", 100, (20,430), textColor, "left")
@@ -392,7 +395,7 @@ while quiting == False:
                     else:
                         textBoxClearLeft("Type Bet", 100, (20,430), blue)
                 if event.type == pygame.MOUSEBUTTONUP:
-                    list1 = [noteBox, hitBox, standBox, splitBox, dealerHand, userHand]
+                    list1 = [noteBox, hitBox, standBox, splitBox, dealerHand, userHand, cpuToggle]
                     if backgroundColor != (5,5,5):
                         textColor = (255,255,255)
                         backgroundColor = (5,5,5)
@@ -505,7 +508,7 @@ while quiting == False:
             if mx > 1150 and my > 750:
                 darkLightImg = pygame.image.load('darkLightButton2.png')
                 if event.type == pygame.MOUSEBUTTONUP:
-                    list1 = [noteBox, hitBox, standBox, splitBox, dealerHand, userHand]
+                    list1 = [noteBox, hitBox, standBox, splitBox, dealerHand, userHand, cpuToggle]
                     if backgroundColor != (5,5,5):
                         textColor = (255,255,255)
                         backgroundColor = (5,5,5)
@@ -578,7 +581,7 @@ while quiting == False:
                     if len(userHand.cards) == 2 and userHand.cards[0].cardType == userHand.cards[1].cardType and (money - int(betValue)) >= 0 and hand2Turn == False:
                         userHand.split = True
                         money -= int(betValue)
-                        userHand2 = Hand("user2")
+                        userHand2 = Hand("user2", "left", (20,315))
                         userHand2.cards = [userHand.cards[1]]
                         userHand.cards.remove(userHand.cards[1])
                         userHand.value = userHand.cards[0].value
@@ -592,7 +595,7 @@ while quiting == False:
                 standBox.color = textColor
                 updateScreen()
 
-            if result != "playing" and 411 < mx < 1126 and 466 < my < 629 and event.type == pygame.MOUSEBUTTONUP:
+            if result != "playing" and 411 < mx < 1126 and 469 < my < 662 and event.type == pygame.MOUSEBUTTONUP:
                 if money == 0 and result == "loss":
                     money = 100
                 end = True
@@ -629,17 +632,25 @@ while quiting == False:
 
         if dealerTurn == True:
             if cpuTurn == True and cpuPlayer == True:
-                if delay > 60:
-                    print(str(cpuHand.value) + ("HERJIEAJDEJL"))
-                    if cpuHand.value > 21:
-                        cpuHand.bust = True
-                        cpuTurn = False
-                    elif cpuHand.value > 16:
-                        cpuHand.stand = True
-                        cpuTurn = False
-                    if cpuTurn == True:
-                        hitCard(cpuHand)
+                if cpuHand.color != textColor:
+                    cpuHand.color = textColor
                     updateScreen()
+                    delay = 30
+                if delay > 60:
+                    for cpuHittingHand in [cpuHand, cpuHand2, cpuHand3]:
+                        if cpuHittingHand.value > 21:
+                            cpuHittingHand.bust = True
+                        elif cpuHittingHand.value > 16:
+                            cpuHittingHand.stand = True
+                        elif len(cpuHittingHand.cards) >= 5 and cpuHittingHand.value < 21:
+                            cpuHittingHand.fiveUnder = True
+                            cpuHittingHand.stand = True
+                        else:
+                            hitCard(cpuHittingHand)
+                        i = cpuHittingHand
+                    updateScreen()
+                    if (cpuHand.stand == True or cpuHand.bust == True) and (cpuHand2.stand == True or cpuHand2.bust == True) and (cpuHand3.stand == True or cpuHand3.bust == True):
+                        cpuTurn = False
                     delay = 0
             else:
                 if dealerHand.value > 21:
@@ -651,7 +662,7 @@ while quiting == False:
                         if dealerHand.value > 21:
                             dealerHand.bust = True
                     if dealerHand.value >= 17:
-                        for handChecking in [cpuHand, userHand]:
+                        for handChecking in [cpuHand, cpuHand2, cpuHand3, userHand]:
                             if (dealerHand.bust == True and handChecking.bust == True) or (dealerHand.value == handChecking.value and handChecking.fiveUnder == dealerHand.fiveUnder):
                                 dealerHand.color = blue
                                 handChecking.color = blue
@@ -667,8 +678,12 @@ while quiting == False:
                             
                             if handChecking.player == "user":
                                 userHand = handChecking
-                            else:
+                            elif handChecking.player == "cpu":
                                 cpuHand = handChecking
+                            elif handChecking.player == "cpu2":
+                                cpuHand2 = handChecking
+                            else:
+                                cpuHand3 = handChecking
                             
                             if handChecking.split == True:
                                 if (dealerHand.bust == True and userHand2.bust == True) or (dealerHand.value == userHand2.value and userHand2.fiveUnder == dealerHand.fiveUnder):
