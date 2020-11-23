@@ -33,6 +33,8 @@ result = "bet"
 betValue = ""
 money = 100
 
+diffList = [[15, "passive"], [17, "neutral"], [19, "assertive"]]
+
 end = cont = mouseDown = onPlayButton = quiting = dealerTurn = hand2Turn = False
 
 cancelledStand = cancelledHit = cancelledSplit = cpuTurn = cpuPlayer =True
@@ -46,6 +48,7 @@ class Card:
 
 class Hand:
     def __init__(self, player, side, coords):
+        self.diff = 1
         self.color = textColor
         self.player = player
         self.side = side
@@ -113,7 +116,7 @@ class Hand:
                 self.handText = TextBox(text, 75, self.coords, self.color, self.side)
             else:
                 self.handText = TextBox(text, 75, self.coords, textColor, self.side)
-        elif self.player != "user":
+        elif self.player not in ["user", "user2"]:
             self.handText = TextBox(text, 45, self.coords, self.color, self.side)
         else:
             self.handText = TextBox(text, 75, self.coords, self.color, self.side)
@@ -266,8 +269,11 @@ def updateScreen():
     textBoxClearLeftLight("Dealer", 30, (20,45), dealerHand.color)
     if cpuPlayer == True:
         textBoxClearRightLight("CPU 1", 30, (1180,170), cpuHand.color)
+        textBoxClearRightLight(diffList[cpuHand.diff][1], 15, (1080,170), cpuHand.color)
         textBoxClearRightLight("CPU 2", 30, (1180,270), cpuHand2.color)
+        textBoxClearRightLight(diffList[cpuHand2.diff][1], 15, (1080,270), cpuHand2.color)
         textBoxClearRightLight("CPU 3", 30, (1180,370), cpuHand3.color)
+        textBoxClearRightLight(diffList[cpuHand3.diff][1], 15, (1080,370), cpuHand3.color)
     textBoxClearLeftLight("Player", 30, (20,190), userHand.color)
 
     if result != "bet" and int(betValue) > 0 and userHand.split == True:
@@ -370,13 +376,14 @@ while quiting == False:
     splitBox = TextBox("Split", 100, (20,730), textColor, "left")
     cpuToggle = TextBox("CPU", 45, (1090,774), textColor, "center")
 
+    print(cpuHand.diff)
     updateScreen()
     textBoxClearLeft("Type Bet", 100, (20,430), blue)
     betValueColor = green
     while result != "playing":
         clock.tick(60)
         betValueColor = green
-
+        print(pygame.mouse.get_pos())
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 cont = True
@@ -385,6 +392,22 @@ while quiting == False:
                 pygame.font.quit()
                 quit()
             mx, my = pygame.mouse.get_pos()
+
+            if 1000 < mx < 1080 and 160 < my < 175 and event.type == pygame.MOUSEBUTTONUP:
+                cpuHand.diff += 1
+                if cpuHand.diff == 3:
+                    cpuHand.diff = 0
+                updateScreen()
+            elif 1000 < mx < 1080 and 260 < my < 275 and event.type == pygame.MOUSEBUTTONUP:
+                cpuHand2.diff += 1
+                if cpuHand2.diff == 3:
+                    cpuHand2.diff = 0
+                updateScreen()
+            elif 1000 < mx < 1080 and 360 < my < 375 and event.type == pygame.MOUSEBUTTONUP:
+                cpuHand3.diff += 1
+                if cpuHand3.diff == 3:
+                    cpuHand3.diff = 0
+                updateScreen()
 
             if mx > 1150 and my > 750:
                 if darkLightImg != pygame.image.load('darkLightButton2.png'):
@@ -395,7 +418,7 @@ while quiting == False:
                     else:
                         textBoxClearLeft("Type Bet", 100, (20,430), blue)
                 if event.type == pygame.MOUSEBUTTONUP:
-                    list1 = [noteBox, hitBox, standBox, splitBox, dealerHand, userHand, cpuToggle]
+                    list1 = [noteBox, hitBox, standBox, splitBox, dealerHand, userHand, cpuToggle, cpuHand, cpuHand2, cpuHand3]
                     if backgroundColor != (5,5,5):
                         textColor = (255,255,255)
                         backgroundColor = (5,5,5)
@@ -449,7 +472,7 @@ while quiting == False:
 
             if event.type == pygame.KEYDOWN:
                 if chr(event.key).isnumeric():
-                    if chr(event.key) != "0" or str(betValue) != "" :
+                    if (chr(event.key) != "0" or str(betValue) != "") and int(betValue + (chr(event.key))) < 100000:
                         betValue += (chr(event.key))
                         updateScreen()
                         textBoxClearLeft("$" + str(betValue), 100, (20,430), betValueColor)
@@ -505,10 +528,27 @@ while quiting == False:
                 pygame.font.quit()
                 quit()
 
+            if userHand.stand == False and userHand.bust == False:
+                if 1000 < mx < 1080 and 160 < my < 175 and event.type == pygame.MOUSEBUTTONUP:
+                    cpuHand.diff += 1
+                    if cpuHand.diff == 3:
+                        cpuHand.diff = 0
+                    updateScreen()
+                elif 1000 < mx < 1080 and 260 < my < 275 and event.type == pygame.MOUSEBUTTONUP:
+                    cpuHand2.diff += 1
+                    if cpuHand2.diff == 3:
+                        cpuHand2.diff = 0
+                    updateScreen()
+                elif 1000 < mx < 1080 and 360 < my < 375 and event.type == pygame.MOUSEBUTTONUP:
+                    cpuHand3.diff += 1
+                    if cpuHand3.diff == 3:
+                        cpuHand3.diff = 0
+                    updateScreen()
+
             if mx > 1150 and my > 750:
                 darkLightImg = pygame.image.load('darkLightButton2.png')
                 if event.type == pygame.MOUSEBUTTONUP:
-                    list1 = [noteBox, hitBox, standBox, splitBox, dealerHand, userHand, cpuToggle]
+                    list1 = [noteBox, hitBox, standBox, splitBox, dealerHand, userHand, cpuToggle, cpuHand, cpuHand2, cpuHand3]
                     if backgroundColor != (5,5,5):
                         textColor = (255,255,255)
                         backgroundColor = (5,5,5)
@@ -640,7 +680,7 @@ while quiting == False:
                     for cpuHittingHand in [cpuHand, cpuHand2, cpuHand3]:
                         if cpuHittingHand.value > 21:
                             cpuHittingHand.bust = True
-                        elif cpuHittingHand.value > 16:
+                        elif cpuHittingHand.value >= diffList[cpuHittingHand.diff][0]:
                             cpuHittingHand.stand = True
                         elif len(cpuHittingHand.cards) >= 5 and cpuHittingHand.value < 21:
                             cpuHittingHand.fiveUnder = True
@@ -655,13 +695,16 @@ while quiting == False:
             else:
                 if dealerHand.value > 21:
                     dealerHand.bust = True
+                if len(dealerHand.cards) >= 5 and dealerHand.value < 21:
+                    dealerHand.fiveUnder = True
+                    dealerHand.stand = True
                 if delay > 60:
-                    if dealerHand.value < 17:
-                        delay = 0
+                    delay = 0
+                    if dealerHand.value < 17 and dealerHand.fiveUnder == False:
                         hitCard(dealerHand)
                         if dealerHand.value > 21:
                             dealerHand.bust = True
-                    if dealerHand.value >= 17:
+                    else:
                         for handChecking in [cpuHand, cpuHand2, cpuHand3, userHand]:
                             if (dealerHand.bust == True and handChecking.bust == True) or (dealerHand.value == handChecking.value and handChecking.fiveUnder == dealerHand.fiveUnder):
                                 dealerHand.color = blue
@@ -698,6 +741,7 @@ while quiting == False:
                                 
                                 if result != result2:
                                     dealerHand.color = blue
+                if result != "playing":
                     updateScreen()
 
         pygame.display.update()
