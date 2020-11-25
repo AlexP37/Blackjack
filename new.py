@@ -706,11 +706,11 @@ while quiting == False:
                             dealerHand.bust = True
                     else:
                         for handChecking in [cpuHand, cpuHand2, cpuHand3, userHand]:
-                            if (dealerHand.bust == True and handChecking.bust == True) or (dealerHand.value == handChecking.value and handChecking.fiveUnder == dealerHand.fiveUnder):
+                            if (dealerHand.value == handChecking.value and handChecking.fiveUnder == dealerHand.fiveUnder):
                                 dealerHand.color = blue
                                 handChecking.color = blue
                                 result = "draw"
-                            elif (dealerHand.bust == False and handChecking.bust == True) or (dealerHand.value > handChecking.value and dealerHand.bust == False and handChecking.fiveUnder == False) or (dealerHand.fiveUnder == True and handChecking.fiveUnder == False):
+                            elif (dealerHand.bust == False and handChecking.bust == True) or (dealerHand.value > handChecking.value and dealerHand.bust == False and handChecking.fiveUnder == False) or (dealerHand.fiveUnder == True and handChecking.fiveUnder == False) or (dealerHand.bust == True and handChecking.bust == True):
                                 dealerHand.color = green
                                 handChecking.color = red
                                 result = "loss"
@@ -741,6 +741,7 @@ while quiting == False:
                                 
                                 if result != result2:
                                     dealerHand.color = blue
+                    updateScreen()
                 if result != "playing":
                     updateScreen()
 
