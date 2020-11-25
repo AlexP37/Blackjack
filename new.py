@@ -196,11 +196,12 @@ def createDeck():
     # t = "3"
     # singleCard = Card(s, (t + s), v, t)
     # deck.append(singleCard)
-    for s in suits:
-        for t in cardTypes:
-            v = valuesForCards[cardTypes.index(t)]
-            singleCard = Card(s, (t + s), v, t)
-            deck.append(singleCard)
+    for i in range(8):
+        for s in suits:
+            for t in cardTypes:
+                v = valuesForCards[cardTypes.index(t)]
+                singleCard = Card(s, (t + s), v, t)
+                deck.append(singleCard)
 
 def hitCard(who):
     who.hit()
@@ -472,7 +473,7 @@ while quiting == False:
 
             if event.type == pygame.KEYDOWN:
                 if chr(event.key).isnumeric():
-                    if (chr(event.key) != "0" or str(betValue) != "") and int(betValue + (chr(event.key))) < 100000:
+                    if (chr(event.key) != "0" or str(betValue) != "") and int(betValue + (chr(event.key))) < 10000:
                         betValue += (chr(event.key))
                         updateScreen()
                         textBoxClearLeft("$" + str(betValue), 100, (20,430), betValueColor)
@@ -687,11 +688,11 @@ while quiting == False:
                             cpuHittingHand.stand = True
                         else:
                             hitCard(cpuHittingHand)
+                            delay = 0
                         i = cpuHittingHand
                     updateScreen()
                     if (cpuHand.stand == True or cpuHand.bust == True) and (cpuHand2.stand == True or cpuHand2.bust == True) and (cpuHand3.stand == True or cpuHand3.bust == True):
                         cpuTurn = False
-                    delay = 0
             else:
                 if dealerHand.value > 21:
                     dealerHand.bust = True
@@ -710,7 +711,7 @@ while quiting == False:
                                 dealerHand.color = blue
                                 handChecking.color = blue
                                 result = "draw"
-                            elif (dealerHand.bust == False and handChecking.bust == True) or (dealerHand.value > handChecking.value and dealerHand.bust == False and handChecking.fiveUnder == False) or (dealerHand.fiveUnder == True and handChecking.fiveUnder == False) or (dealerHand.bust == True and handChecking.bust == True):
+                            elif handChecking.bust == True or (dealerHand.value > handChecking.value and dealerHand.bust == False and handChecking.fiveUnder == False) or (dealerHand.fiveUnder == True and handChecking.fiveUnder == False):
                                 dealerHand.color = green
                                 handChecking.color = red
                                 result = "loss"
@@ -729,10 +730,10 @@ while quiting == False:
                                 cpuHand3 = handChecking
                             
                             if handChecking.split == True:
-                                if (dealerHand.bust == True and userHand2.bust == True) or (dealerHand.value == userHand2.value and userHand2.fiveUnder == dealerHand.fiveUnder):
+                                if (dealerHand.value == userHand2.value and userHand2.fiveUnder == dealerHand.fiveUnder):
                                     userHand2.color = blue
                                     result2 = "draw"
-                                elif (dealerHand.bust == False and userHand2.bust == True) or (dealerHand.value > userHand2.value and dealerHand.bust == False and userHand2.fiveUnder == False) or (dealerHand.fiveUnder == True and userHand2.fiveUnder == False):
+                                elif userHand2.bust == True or (dealerHand.value > userHand2.value and dealerHand.bust == False and userHand2.fiveUnder == False) or (dealerHand.fiveUnder == True and userHand2.fiveUnder == False):
                                     userHand2.color = red
                                     result2 = "loss"
                                 elif (dealerHand.bust == True and userHand2.bust == False) or (dealerHand.value < userHand2.value and userHand2.bust == False) or (dealerHand.fiveUnder == False and userHand2.fiveUnder == True):
@@ -758,9 +759,10 @@ while quiting == False:
             money += (int(betValue))
     betValue = ""
     result = "bet"
-    deck = []
-    createDeck()
-    random.shuffle(deck)
+    if len(deck) < 26:
+        deck = []
+        createDeck()
+        random.shuffle(deck)
     delay = 61
     end = cont = userHand.bust = userHand.stand = mouseDown = hand2Turn = userHand.fiveUnder = dealerHand.bust = onPlayButton = userHand.blackJack = dealerHand.fiveUnder = userHand.split = dealerTurn = False
     cancelledStand = cancelledHit = cancelledSplit = cpuTurn = True
