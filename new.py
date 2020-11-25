@@ -35,9 +35,9 @@ money = 100
 
 diffList = [[15, "passive"], [17, "neutral"], [19, "assertive"]]
 
-end = cont = mouseDown = onPlayButton = quiting = dealerTurn = hand2Turn = False
+end = cont = mouseDown = onPlayButton = quiting = dealerTurn = hand2Turn = canDouble = False
 
-cancelledStand = cancelledHit = cancelledSplit = cpuTurn = cpuPlayer =True
+cancelledStand = cancelledHit = cancelledSplit = cpuTurn = cpuPlayer = True
 
 class Card:
     def __init__(self, suit, name, value, cardType):
@@ -276,6 +276,8 @@ def updateScreen():
         textBoxClearRightLight("CPU 3", 30, (1180,370), cpuHand3.color)
         textBoxClearRightLight(diffList[cpuHand3.diff][1], 15, (1080,370), cpuHand3.color)
     textBoxClearLeftLight("Player", 30, (20,190), userHand.color)
+    if canDouble == True:
+        textBoxClearLeft("Double", 100, (20,430), textColor)
 
     if result != "bet" and int(betValue) > 0 and userHand.split == True:
         textBoxClearRightLight("BET 2: $" + betValue, 30, (1180,115), userHand2.color)
@@ -513,11 +515,18 @@ while quiting == False:
     while end == False:
         clock.tick(60)
         delay += 1
-        print(str(int(clock.get_fps())))
+        print(type(betValue))
 
         currentPlayerHand = userHand
         if hand2Turn == True:
             currentPlayerHand = userHand2
+        
+        if len(userHand.cards) == 2 and int(betValue) < money and userHand.value < 21 and userHand.split == False:
+            if canDouble == False:
+                canDouble = True
+                updateScreen()
+        else:
+            canDouble = False
 
         for event in pygame.event.get():
             mx, my = pygame.mouse.get_pos()
@@ -528,6 +537,19 @@ while quiting == False:
                 pygame.quit()
                 pygame.font.quit()
                 quit()
+
+            if canDouble == True and 22 < mx < 412 and 388 < my < 472 and event.type == pygame.MOUSEBUTTONUP:
+                dealerTurn = True
+                delay = 0
+                hitCard(userHand)
+                if userHand.value > 21:
+                    userHand.bust = True
+                else:
+                    userHand.stand = True
+                money = money - int(betValue)
+                betValue = str(int(betValue) * 2)
+                canDouble = False
+                updateScreen()
 
             if userHand.stand == False and userHand.bust == False:
                 if 1000 < mx < 1080 and 160 < my < 175 and event.type == pygame.MOUSEBUTTONUP:
@@ -764,7 +786,7 @@ while quiting == False:
         createDeck()
         random.shuffle(deck)
     delay = 61
-    end = cont = userHand.bust = userHand.stand = mouseDown = hand2Turn = userHand.fiveUnder = dealerHand.bust = onPlayButton = userHand.blackJack = dealerHand.fiveUnder = userHand.split = dealerTurn = False
+    end = cont = userHand.bust = userHand.stand = mouseDown = hand2Turn = userHand.fiveUnder = dealerHand.bust = onPlayButton = userHand.blackJack = dealerHand.fiveUnder = userHand.split = dealerTurn = canDouble = False
     cancelledStand = cancelledHit = cancelledSplit = cpuTurn = True
 
 
