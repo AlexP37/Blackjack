@@ -32,7 +32,6 @@ delay = 61
 result = "bet"
 betValue = ""
 money = 100
-
 diffList = [[15, "passive"], [17, "neutral"], [19, "assertive"]]
 
 end = cont = mouseDown = onPlayButton = quiting = dealerTurn = hand2Turn = canDouble = False
@@ -73,7 +72,7 @@ class Hand:
                 self.value += 1
             else:
                 self.value += 11
-            self.aceCount += 1
+                self.aceCount += 1
         else:
             self.value += self.cards[-1].value
 
@@ -89,7 +88,6 @@ class Hand:
                 self.value -= 10
         if len(self.cards) >= 5 and self.value < 21:
             self.fiveUnder = True
-            print("THERE IS A DECK UNDER 21 WITH 5, AND IT IS", self.player)
             updateScreen()
 
  
@@ -379,14 +377,12 @@ while quiting == False:
     splitBox = TextBox("Split", 100, (20,730), textColor, "left")
     cpuToggle = TextBox("CPU", 45, (1090,774), textColor, "center")
 
-    print(cpuHand.diff)
     updateScreen()
     textBoxClearLeft("Type Bet", 100, (20,430), blue)
     betValueColor = green
     while result != "playing":
         clock.tick(60)
         betValueColor = green
-        print(pygame.mouse.get_pos())
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 cont = True
@@ -515,18 +511,19 @@ while quiting == False:
     while end == False:
         clock.tick(60)
         delay += 1
-        print(type(betValue))
 
         currentPlayerHand = userHand
         if hand2Turn == True:
             currentPlayerHand = userHand2
         
-        if len(userHand.cards) == 2 and int(betValue) < money and userHand.value < 21 and userHand.split == False:
+        if len(userHand.cards) == 2 and int(betValue) < money and userHand.value < 21 and userHand.split == False and userHand.stand == False and userHand.bust == False:
             if canDouble == False:
                 canDouble = True
                 updateScreen()
         else:
-            canDouble = False
+            if canDouble == True:
+                canDouble = False
+                updateScreen()
 
         for event in pygame.event.get():
             mx, my = pygame.mouse.get_pos()

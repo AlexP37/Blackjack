@@ -10,6 +10,14 @@ Split:
 - You can split if you are delt two of the same cards and you bet amount is less than your total money (as per casino convention)
 - Once you have split, you play through your first hand, and then your second (as per casino convention)
 
+Double:
+
+- Doubles the bet
+- Hits one card
+- Either Busts or Folds
+- Note: as per casino convention, once a player doubles, their hand is automatically hit and then their turn ends, they either have a stand or a bust
+- Must have enough money (more than your bet) to double
+
 Placing Bet:
 
 - Type your bet (you can only bet below your total money), and then press enter to place your bet.
@@ -44,3 +52,14 @@ Out of Money:
 
 - Once you run out of money, you can simply press the restart button that is displayed, and return to $100
 
+A Footnote on Surrendering:
+
+- "After receiving an initial two cards, the player has up to four standard options: 'hit', 'stand', 'double down', or 'split'... SOME games give the player a fifth option, 'surrender'." - Wikipedia
+- In only select casinos, and in only select games at afermentioned casinos can a player surrender / forfeit their hand for half of their bet back. 
+- The vast majority of Vegas casinos for example do not offer surrender.
+- Thus, for the above reasons and for contiguity's sake, the option for surrender is not offered in this simulator. EVERY SINGLE OTHER GAME FACTOR including 5 Under 21 is accounted for, but due to the abiguity of the surrender it is not included.
+
+A Footnote on 5 Under 21:
+
+- Just like 'surrender', 5 Under 21 is a lsightly ambiguos rule that is played in limited casinos, but in the majority of houshold games, the rule is respected.
+- Due to the growing support of the rule, and the simplistic and well fashioned nature of its fundamentals, 5 under 21 is included in the game.
