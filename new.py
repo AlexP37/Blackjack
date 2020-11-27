@@ -266,6 +266,7 @@ def updateScreen():
     if result != "bet" and int(betValue) > 0:
         textBoxClearRightLight("BET: $" + betValue, 30, (1180,80), userHand.color)
     textBoxClearLeftLight("Dealer", 30, (20,45), dealerHand.color)
+    textBoxClearLeftLight(diffList[dealerHand.diff][1], 15, (150,45), dealerHand.color)
     if cpuPlayer == True:
         textBoxClearRightLight("CPU 1", 30, (1180,170), cpuHand.color)
         textBoxClearRightLight(diffList[cpuHand.diff][1], 15, (1080,170), cpuHand.color)
@@ -406,6 +407,11 @@ while quiting == False:
                 cpuHand3.diff += 1
                 if cpuHand3.diff == 3:
                     cpuHand3.diff = 0
+                updateScreen()
+            elif 150 < mx < 225 and 40 < my < 55 and event.type == pygame.MOUSEBUTTONUP:
+                dealerHand.diff += 1
+                if dealerHand.diff == 3:
+                    dealerHand.diff = 0
                 updateScreen()
 
             if mx > 1150 and my > 750:
@@ -564,6 +570,11 @@ while quiting == False:
                     if cpuHand3.diff == 3:
                         cpuHand3.diff = 0
                     updateScreen()
+                elif 150 < mx < 240 and 38 < my < 53 and event.type == pygame.MOUSEBUTTONUP:
+                    dealerHand.diff += 1
+                    if dealerHand.diff == 3:
+                        dealerHand.diff = 0
+                    updateScreen()
 
             if mx > 1150 and my > 750:
                 darkLightImg = pygame.image.load('darkLightButton2.png')
@@ -720,7 +731,7 @@ while quiting == False:
                     dealerHand.stand = True
                 if delay > 60:
                     delay = 0
-                    if dealerHand.value < 17 and dealerHand.fiveUnder == False:
+                    if dealerHand.value < diffList[dealerHand.diff][0] and dealerHand.fiveUnder == False:
                         hitCard(dealerHand)
                         if dealerHand.value > 21:
                             dealerHand.bust = True
